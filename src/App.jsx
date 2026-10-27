@@ -841,8 +841,11 @@ function Paywall({ user, onClose }) {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ userId:user.uid, email:user.email }),
       });
-      const { url } = await res.json();
-      window.location.href = url;
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { throw new Error("Server crashed: " + text.slice(0, 120)); }
+      if (!res.ok || !data.url) throw new Error(data.error || "Could not start checkout");
+      window.location.href = data.url;
     } catch(e) { alert("Payment error: "+e.message); }
     setLoading(false);
   };

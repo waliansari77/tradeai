@@ -1,22 +1,39 @@
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
-  const { userId, email } = req.body;
+  res.setHeader("Content-Type", "application/json");
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
   try {
+    const secret = process.env.STRIPE_SECRET_KEY;
+    const price = process.env.STRIPE_PRICE_ID || process.env.VITE_STRIPE_PRICE_ID;
+
+    if (!secret) {
+      return res.status(500).json({ error: "STRIPE_SECRET_KEY is missing in Vercel environment variables" });
+    }
+    if (!price) {
+      return res.status(500).json({ error: "VITE_STRIPE_PRICE_ID is missing in Vercel environment variables" });
+    }
+
+    const stripe = new Stripe(secret);
+    const { userId, email } = req.body || {};
+    const origin = req.headers.origin || `https://${req.headers.host}`;
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
-      line_items: [{ price: process.env.VITE_STRIPE_PRICE_ID, quantity: 1 }],
-      success_url: `${req.headers.origin}/?success=true&uid=${userId}`,
-      cancel_url: `${req.headers.origin}/?cancelled=true`,
+      line_items: [{ price, quantity: 1 }],
+      success_url: `${origin}/?success=true&uid=${userId}`,
+      cancel_url: `${origin}/?cancelled=true`,
       customer_email: email,
       metadata: { userId },
     });
-    res.status(200).json({ url: session.url });
+
+    return res.status(200).json({ url: session.url });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: e.message || "Unknown server error" });
   }
 }
