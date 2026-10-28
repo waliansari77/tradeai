@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import SettingsPage from "./Settings";
 import { loadStripe } from "@stripe/stripe-js";
 import { initializeApp } from "firebase/app";
 import {
@@ -25,6 +26,7 @@ const db = getFirestore(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
 const OPENROUTER_KEY = import.meta.env.VITE_OPENROUTER_KEY;
 const FREE_LIMIT = 10;
+const AI_MODEL = "anthropic/claude-sonnet-5.5"; // change this line to switch models
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap');
@@ -756,6 +758,9 @@ const STYLES = `
   .fb-sent-title{font-family:var(--display);font-size:30px}
   @media (max-width:768px){.page-title{font-size:28px}.fb-wrap{max-width:100%}}
 
+  .set-wrap{max-width:720px}.set-section{margin-bottom:20px}.set-body{padding:22px;display:grid;gap:14px}.set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  input:disabled{opacity:.55;cursor:not-allowed}
+
 `;
 
 const EMOTIONS = ["Confident","Calm","Disciplined","FOMO","Anxious","Greedy","Revenge","Patient"];
@@ -768,7 +773,7 @@ const callAI = async (messages) => {
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method:"POST",
     headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${OPENROUTER_KEY.trim()}`, "HTTP-Referer":window.location.origin },
-    body: JSON.stringify({ model:"anthropic/claude-sonnet-4", max_tokens:1000, messages }),
+    body: JSON.stringify({ model:AI_MODEL, max_tokens:2000, messages }),
   });
   const data = await res.json().catch(()=>({}));
   if (!res.ok || data.error) throw new Error(data.error?.message || ("OpenRouter error " + res.status));
@@ -1018,7 +1023,7 @@ function Journal({ user }) {
   const handleScreenshot = (file,cb)=>{
     if (!file) return;
     const r = new FileReader();
-    r.onload = e=>cb(e.target.result);
+    r.onload = e=>{ const img=new Image(); img.onload=()=>{ const k=Math.min(1,1000/img.width); const c=document.createElement("canvas"); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k); c.getContext("2d").drawImage(img,0,0,c.width,c.height); cb(c.toDataURL("image/jpeg",0.72)); }; img.src=e.target.result; };
     r.readAsDataURL(file);
   };
 
@@ -1084,6 +1089,8 @@ function Journal({ user }) {
   const avgWin = wins.length?Math.round(wins.reduce((s,t)=>s+t.pnl,0)/wins.length):0;
   const avgLoss = losses.length?Math.round(losses.reduce((s,t)=>s+t.pnl,0)/losses.length):0;
   const rr = avgLoss?Math.abs((avgWin/avgLoss).toFixed(2)):0;
+  const gp=wins.reduce((a,t)=>a+t.pnl,0), gl=Math.abs(losses.reduce((a,t)=>a+t.pnl,0));
+  const pf = gl?(gp/gl).toFixed(2):(gp?"∞":"0");
   const usagePct = Math.min(100,(trades.length/FREE_LIMIT)*100);
 
   const eqPts=(()=>{ let c=0; return [...trades].reverse().map((t,i)=>({x:i,y:(c+=t.pnl)})); })();
@@ -1098,7 +1105,7 @@ function Journal({ user }) {
   const estPnl=form.entry&&form.exit&&form.shares?Math.round((parseFloat(form.exit)-parseFloat(form.entry))*parseInt(form.shares)*(form.direction==="short"?-1:1)):null;
   const displayName=user.displayName||user.email?.split("@")[0]||"Trader";
   const initials=(displayName[0]||"T").toUpperCase();
-  const NAV=[{id:"journal",icon:"▤",label:"Journal"},{id:"performance",icon:"◐",label:"Stats"},{id:"ai",icon:"✦",label:"AI"},{id:"feedback",icon:"✎",label:"Feedback"}];
+  const NAV=[{id:"journal",icon:"▤",label:"Journal"},{id:"performance",icon:"◐",label:"Stats"},{id:"ai",icon:"✦",label:"AI"},{id:"feedback",icon:"✎",label:"Feedback"},{id:"settings",icon:"⚙",label:"Settings"}];
 
   return (
     <>
@@ -1212,7 +1219,7 @@ function Journal({ user }) {
             <div className="stats-row">
               <div className="stat-card green"><div className="stat-label">Net P&L</div><div className={`stat-value ${totalPnl>=0?"green":"red"}`}>{totalPnl>=0?"+":""}${totalPnl}</div></div>
               <div className="stat-card blue"><div className="stat-label">Win Rate</div><div className="stat-value blue">{winRate}%</div></div>
-              <div className="stat-card yellow"><div className="stat-label">Profit Factor</div><div className="stat-value yellow">{rr}</div></div>
+              <div className="stat-card yellow"><div className="stat-label">Profit Factor</div><div className="stat-value yellow">{pf}</div></div>
               <div className="stat-card purple"><div className="stat-label">Total Trades</div><div className="stat-value purple">{trades.length}</div></div>
             </div>
             <div className="perf-grid">
@@ -1317,6 +1324,7 @@ function Journal({ user }) {
               </div>
             </div>
           </>}
+          {page==="settings"&&<SettingsPage user={user} auth={auth} db={db} isPro={isPro} trades={trades} onDone={showToast}/>}
           {page==="feedback"&&<FeedbackPage user={user} isPro={isPro} displayName={displayName} onDone={showToast}/>}
         </div>
 
@@ -1329,10 +1337,6 @@ function Journal({ user }) {
                 <span className="bottom-nav-label">{item.label}</span>
               </div>
             ))}
-            <div className="bottom-nav-item" onClick={()=>signOut(auth)}>
-              <span className="bottom-nav-icon">⎋</span>
-              <span className="bottom-nav-label">Sign Out</span>
-            </div>
           </div>
         </div>
 
