@@ -27,7 +27,7 @@ const OPENROUTER_KEY = import.meta.env.VITE_OPENROUTER_KEY;
 const FREE_LIMIT = 10;
 
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -39,7 +39,7 @@ const STYLES = `
     --surface3: #131d35;
     --border: #1a2540;
     --border2: #243560;
-    --accent: #4ade80;
+    --accent: #7ec9a0;
     --accent2: #38bdf8;
     --accent3: #a78bfa;
     --red: #f87171;
@@ -708,21 +708,71 @@ const STYLES = `
   @media (max-width: 400px) {
     .trade-cards-grid { grid-template-columns:1fr; }
   }
+  /* ── REFINED MONOCHROME THEME ── */
+  :root{--bg:#0b0b0c;--bg2:#0b0b0c;--surface:#111113;--surface2:#161618;--surface3:#1c1c1f;--border:#222226;--border2:#2e2e33;--accent:#7ec9a0;--accent2:#9a9aa3;--accent3:#9a9aa3;--red:#d98282;--yellow:#ededee;--text:#ededee;--text2:#a0a0a8;--muted:#6b6b73;--muted2:#45454c;--font:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;--display:'Instrument Serif',Georgia,serif;--radius:12px;--radius-sm:8px}
+  body{background:var(--bg);background-image:none}
+  .auth-bg,.auth-grid,.paywall-glow,.sidebar-logo-wrap::after,.nav-item::before,.stat-card::before,.stat-card::after,.btn::after{display:none}
+  .logo-text,.mobile-logo,.auth-logo,.page-title,.page-title-gradient,.paywall-title,.paywall-price,.modal-title,.confirm-title{background:none;-webkit-text-fill-color:currentColor;color:var(--text);font-family:var(--display);font-weight:400;letter-spacing:-.01em}
+  .paywall-title span{background:none;-webkit-text-fill-color:currentColor;color:var(--text2);font-style:italic}
+  .page-title{font-size:34px}.logo-text{font-size:26px}.auth-logo{font-size:36px}.paywall-title{font-size:30px}.modal-title{font-size:22px}
+  .btn-primary,.auth-btn-primary,.upgrade-btn,.paywall-btn,.fab{background:var(--text);color:var(--bg);box-shadow:none;animation:none}
+  .btn-primary:hover,.auth-btn-primary:hover,.upgrade-btn:hover,.paywall-btn:hover,.fab:hover{background:#fff;box-shadow:none;transform:none}
+  .btn-blue{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}.btn-blue:hover{background:var(--surface3)}
+  .btn-danger{background:transparent;color:var(--red);border:1px solid rgba(217,130,130,.3)}
+  .btn-ghost{background:transparent}
+  .sidebar{background:var(--surface)}
+  .nav-item:hover{transform:none;background:var(--surface2)}
+  .nav-item.active{background:var(--surface2);color:var(--text);border:1px solid var(--border);box-shadow:none}
+  .sidebar-pnl-card{background:var(--surface2);border-color:var(--border)}
+  .sidebar-avatar,.ai-avatar{background:var(--surface3);color:var(--text);border:1px solid var(--border2);box-shadow:none}
+  .pro-badge{background:transparent;color:var(--text);border:1px solid var(--border2);animation:none;font-weight:500;letter-spacing:.1em}
+  .usage-bar-fill{background:var(--text)}
+  .stat-card:hover,.trade-card:hover{transform:translateY(-2px);box-shadow:none;border-color:var(--border2)}
+  .stat-value.blue,.stat-value.purple,.stat-value.yellow{color:var(--text)}
+  .trade-card-top-badge.long{background:rgba(11,11,12,.85);color:var(--accent);border:1px solid rgba(126,201,160,.35)}
+  .trade-card-top-badge.short{background:rgba(11,11,12,.85);color:var(--red);border:1px solid rgba(217,130,130,.35)}
+  .card-action-btn.edit,.card-action-btn.del{background:rgba(11,11,12,.85);color:var(--text);border:1px solid var(--border2)}
+  .badge.long{background:transparent;border-color:rgba(126,201,160,.3)}.badge.short{background:transparent;border-color:rgba(217,130,130,.3)}
+  .trade-card-img-placeholder,.detail-chart-placeholder{background:var(--surface2);color:var(--muted2)}
+  .msg-bubble.user{background:var(--surface3);border-color:var(--border2)}
+  input:focus,select:focus,textarea:focus,.ai-input:focus,.auth-field input:focus{border-color:var(--text2);box-shadow:none}
+  .paywall-card,.modal,.detail-modal,.auth-card,.confirm-box{box-shadow:none;border-color:var(--border2);background:var(--surface)}
+  .paywall-icon,.empty-icon{animation:none;color:var(--muted)}
+  .toast{border-color:var(--border2);color:var(--text);box-shadow:none}
+  .auth-success{background:transparent;color:var(--accent);border-color:rgba(126,201,160,.3)}
+  .upload-zone:hover{border-color:var(--text2);background:transparent}
+  .mobile-header{background:rgba(11,11,12,.92)}.bottom-nav{background:rgba(11,11,12,.96)}
+  .bottom-nav-item{padding:8px 4px}.bottom-nav-item.active{color:var(--text)}
+  .mobile-right{display:flex;align-items:center;gap:12px}
+  .mobile-upgrade{padding:7px 14px;border-radius:999px;border:none;background:var(--text);color:var(--bg);font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer}
+  .mobile-pro{font-family:var(--mono);font-size:10px;letter-spacing:.1em;border:1px solid var(--border2);padding:4px 10px;border-radius:999px;color:var(--text2)}
+  .fb-wrap{max-width:660px}
+  .fb-chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 22px}
+  .chip{padding:8px 16px;border-radius:999px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-size:13px;font-family:var(--font);transition:all .2s}
+  .chip:hover{color:var(--text);border-color:var(--text2)}
+  .chip.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+  .fb-foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .fb-sent{text-align:center;padding:36px 12px}
+  .fb-sent-title{font-family:var(--display);font-size:30px}
+  @media (max-width:768px){.page-title{font-size:28px}.fb-wrap{max-width:100%}}
+
 `;
 
 const EMOTIONS = ["Confident","Calm","Disciplined","FOMO","Anxious","Greedy","Revenge","Patient"];
 const SETUPS   = ["Trend Follow","Breakout","Breakdown","Momentum","Reversal","Catalyst","Scalp","Swing"];
-const WELCOME_MSG = { role:"ai", text:"👋 Hey! I'm your AI trading coach powered by Claude. Ask me anything about your trades, patterns, or psychology!" };
+const WELCOME_MSG = { role:"ai", text:"Hello. I'm your AI trading coach powered by Claude. Ask me anything about your trades, patterns, or psychology!" };
 const EMPTY_FORM  = { date:new Date().toISOString().slice(0,10), ticker:"", direction:"long", entry:"", exit:"", shares:"", emotion:"Confident", setup:"Breakout", notes:"", screenshot:null };
 
 const callAI = async (messages) => {
+  if (!OPENROUTER_KEY) throw new Error("VITE_OPENROUTER_KEY is missing. Add it in Vercel (or your .env file) and redeploy.");
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method:"POST",
-    headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${OPENROUTER_KEY}`, "HTTP-Referer":window.location.origin },
+    headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${OPENROUTER_KEY.trim()}`, "HTTP-Referer":window.location.origin },
     body: JSON.stringify({ model:"anthropic/claude-sonnet-4", max_tokens:1000, messages }),
   });
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || "Unable to get a response.";
+  const data = await res.json().catch(()=>({}));
+  if (!res.ok || data.error) throw new Error(data.error?.message || ("OpenRouter error " + res.status));
+  return data.choices?.[0]?.message?.content || "The model returned an empty answer. Please try again.";
 };
 
 // ── AUTH ──────────────────────────────────────────────────────
@@ -783,7 +833,7 @@ function AuthPage() {
         <div className="auth-card">
           <div className="auth-logo">TradeAI</div>
           <div className="auth-subtitle">// RESET YOUR PASSWORD</div>
-          {error&&<div className="auth-error">⚠️ {error}</div>}
+          {error&&<div className="auth-error">{error}</div>}
           {success&&<div className="auth-success">{success}</div>}
           {!success&&<>
             <div className="auth-field"><label>Email address</label><input type="email" placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleReset()}/></div>
@@ -809,7 +859,7 @@ function AuthPage() {
             <div className={`auth-tab ${tab==="login"?"active":""}`} onClick={()=>{setTab("login");setError("");}}>Sign In</div>
             <div className={`auth-tab ${tab==="signup"?"active":""}`} onClick={()=>{setTab("signup");setError("");}}>Sign Up</div>
           </div>
-          {error&&<div className="auth-error">⚠️ {error}</div>}
+          {error&&<div className="auth-error">{error}</div>}
           {tab==="signup"&&<div className="auth-field"><label>Full Name</label><input placeholder="John Doe" value={name} onChange={e=>setName(e.target.value)}/></div>}
           <div className="auth-field"><label>Email</label><input type="email" placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleSubmit()}/></div>
           <div className="auth-field">
@@ -854,7 +904,7 @@ function Paywall({ user, onClose }) {
       <div className="paywall-card" onClick={e=>e.stopPropagation()}>
         <div className="paywall-glow"/>
         <button className="paywall-close-btn" onClick={onClose}>✕</button>
-        <div className="paywall-icon">🚀</div>
+        <div className="paywall-icon">◆</div>
         <div className="paywall-title">Unlock <span>TradeAI Pro</span></div>
         <div className="paywall-sub">You've used all {FREE_LIMIT} free trades. Upgrade for unlimited journaling and full AI coaching.</div>
         <div className="paywall-price-wrap">
@@ -868,6 +918,44 @@ function Paywall({ user, onClose }) {
         </div>
         <button className="paywall-btn" onClick={handleSubscribe} disabled={loading}>{loading?"Redirecting to payment...":"Upgrade to Pro — $4.99/mo"}</button>
         <div className="paywall-cancel" onClick={onClose}>Maybe later</div>
+      </div>
+    </div>
+  );
+}
+
+const FB_TYPES = ["Suggestion","Bug","Complaint","Other"];
+function FeedbackPage({ user, isPro, displayName, onDone }) {
+  const [type, setType] = useState("Suggestion");
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const submit = async () => {
+    const text = message.trim();
+    if (text.length < 5) { onDone("Please write a few more words"); return; }
+    setSending(true);
+    try {
+      await addDoc(collection(db, "feedback"), { uid:user.uid, email:user.email||"", name:displayName, type, message:text.slice(0,2000), isPro, createdAt:Date.now() });
+      setSent(true); setMessage("");
+    } catch(e) { onDone("Could not send: " + e.message); }
+    setSending(false);
+  };
+  return (
+    <div className="fb-wrap">
+      <div className="page-header"><div><div className="page-title">Feedback</div><div className="page-sub">// TELL US WHAT TO IMPROVE</div></div></div>
+      <div className="panel" style={{padding:24}}>
+        {sent ? (
+          <div className="fb-sent">
+            <div className="fb-sent-title">Thank you.</div>
+            <div style={{color:"var(--text2)",fontSize:14,margin:"8px 0 22px"}}>Your message reached us. We read every one.</div>
+            <button className="btn btn-ghost" onClick={()=>setSent(false)}>Send another</button>
+          </div>
+        ) : (<>
+          <label>Type</label>
+          <div className="fb-chips">{FB_TYPES.map(t=>(<button key={t} className={"chip "+(type===t?"on":"")} onClick={()=>setType(t)}>{t}</button>))}</div>
+          <label>Your message</label>
+          <textarea style={{marginTop:8,minHeight:150}} maxLength={2000} placeholder="Tell us what is not working, or what you would love to see..." value={message} onChange={e=>setMessage(e.target.value)}/>
+          <div className="fb-foot"><span>{message.length}/2000</span><button className="btn btn-primary" onClick={submit} disabled={sending}>{sending?"Sending...":"Send feedback"}</button></div>
+        </>)}
       </div>
     </div>
   );
@@ -950,13 +1038,13 @@ function Journal({ user }) {
         showToast("✓ Trade saved");
         setTimeout(()=>analyzeTradeAI({id:ref.id,...td}),600);
       }
-    } catch(e){ showToast("❌ "+e.message); }
+    } catch(e){ showToast("Error: "+e.message); }
     setSaving(false); setShowModal(false); setForm(EMPTY_FORM); setEditingTrade(null);
   };
 
   const deleteTrade = async (id)=>{
-    try{ await deleteDoc(doc(db,"users",user.uid,"trades",id)); showToast("🗑 Trade deleted"); }
-    catch{ showToast("❌ Delete failed"); }
+    try{ await deleteDoc(doc(db,"users",user.uid,"trades",id)); showToast("Trade deleted"); }
+    catch{ showToast("Delete failed"); }
     setConfirmDelete(null); setDetailTrade(null);
   };
 
@@ -970,7 +1058,7 @@ function Journal({ user }) {
         {role:"user",content:`Analyze:\n${trade.ticker} | ${trade.direction.toUpperCase()} | Entry:$${trade.entry} | Exit:$${trade.exit} | Shares:${trade.shares} | P&L:$${trade.pnl} | Setup:${trade.setup} | Emotion:${trade.emotion} | Notes:"${trade.notes}"`}
       ]);
       setMessages(prev=>[...prev,{role:"ai",text:reply}]);
-    } catch{ setMessages(prev=>[...prev,{role:"ai",text:"Connection error. Check your API key."}]); }
+    } catch(e){ setMessages(prev=>[...prev,{role:"ai",text:"AI error: "+e.message}]); }
     setAiLoading(false);
   };
 
@@ -985,7 +1073,7 @@ function Journal({ user }) {
         {role:"user",content:msg}
       ]);
       setMessages(prev=>[...prev,{role:"ai",text:reply}]);
-    } catch{ setMessages(prev=>[...prev,{role:"ai",text:"Connection error."}]); }
+    } catch(e){ setMessages(prev=>[...prev,{role:"ai",text:"AI error: "+e.message}]); }
     setAiLoading(false);
   };
 
@@ -1010,7 +1098,7 @@ function Journal({ user }) {
   const estPnl=form.entry&&form.exit&&form.shares?Math.round((parseFloat(form.exit)-parseFloat(form.entry))*parseInt(form.shares)*(form.direction==="short"?-1:1)):null;
   const displayName=user.displayName||user.email?.split("@")[0]||"Trader";
   const initials=(displayName[0]||"T").toUpperCase();
-  const NAV=[{id:"journal",icon:"📋",label:"Journal"},{id:"performance",icon:"📊",label:"Stats"},{id:"ai",icon:"🤖",label:"AI"}];
+  const NAV=[{id:"journal",icon:"▤",label:"Journal"},{id:"performance",icon:"◐",label:"Stats"},{id:"ai",icon:"✦",label:"AI"},{id:"feedback",icon:"✎",label:"Feedback"}];
 
   return (
     <>
@@ -1020,7 +1108,10 @@ function Journal({ user }) {
         {/* MOBILE HEADER */}
         <div className="mobile-header">
           <div className="mobile-logo">TradeAI</div>
-          <div className="mobile-pnl" style={{color:totalPnl>=0?"var(--accent)":"var(--red)"}}>{totalPnl>=0?"+":""}${totalPnl.toLocaleString()}</div>
+          <div className="mobile-right">
+            <div className="mobile-pnl" style={{color:totalPnl>=0?"var(--accent)":"var(--red)"}}>{totalPnl>=0?"+":""}${totalPnl.toLocaleString()}</div>
+            {isPro?<div className="mobile-pro">PRO</div>:<button className="mobile-upgrade" onClick={()=>setShowPaywall(true)}>Upgrade</button>}
+          </div>
         </div>
 
         {/* SIDEBAR */}
@@ -1049,14 +1140,14 @@ function Journal({ user }) {
               </div>
             </div>
             {isPro
-              ?<div className="pro-badge">⚡ PRO MEMBER</div>
+              ?<div className="pro-badge">PRO</div>
               :<>
                 <div className="free-badge">FREE · {trades.length}/{FREE_LIMIT} trades</div>
                 <div className="usage-bar-wrap">
                   <div className="usage-bar-label"><span>Usage</span><span>{trades.length}/{FREE_LIMIT}</span></div>
                   <div className="usage-bar-track"><div className="usage-bar-fill" style={{width:`${usagePct}%`}}/></div>
                 </div>
-                <button className="upgrade-btn" onClick={()=>setShowPaywall(true)}>⚡ Upgrade to Pro</button>
+                <button className="upgrade-btn" onClick={()=>setShowPaywall(true)}>Upgrade to Pro</button>
               </>
             }
             <button className="sign-out-btn" onClick={()=>signOut(auth)}>Sign Out</button>
@@ -1085,7 +1176,7 @@ function Journal({ user }) {
               ?<div className="loading-screen" style={{minHeight:200}}><div className="spinner"/></div>
               :trades.length===0
                 ?<div className="empty">
-                  <div className="empty-icon">📋</div>
+                  <div className="empty-icon">▤</div>
                   <div className="empty-title">No trades yet</div>
                   <div className="empty-sub">{FREE_LIMIT} free trades included — log your first one!</div>
                 </div>
@@ -1093,11 +1184,11 @@ function Journal({ user }) {
                   {trades.map((t,i)=>(
                     <div key={t.id} className="trade-card" style={{animationDelay:`${i*0.05}s`}} onClick={()=>setDetailTrade(t)}>
                       <div className="trade-card-actions" onClick={e=>e.stopPropagation()}>
-                        <button className="card-action-btn edit" onClick={e=>openEdit(t,e)}>✏️</button>
-                        <button className="card-action-btn del" onClick={e=>{e.stopPropagation();setConfirmDelete(t);}}>🗑</button>
+                        <button className="card-action-btn edit" onClick={e=>openEdit(t,e)}>✎</button>
+                        <button className="card-action-btn del" onClick={e=>{e.stopPropagation();setConfirmDelete(t);}}>⌫</button>
                       </div>
                       <div className={`trade-card-top-badge ${t.direction}`}>{t.direction.toUpperCase()}</div>
-                      {t.screenshot?<img className="trade-card-img" src={t.screenshot} alt="chart"/>:<div className="trade-card-img-placeholder">📈</div>}
+                      {t.screenshot?<img className="trade-card-img" src={t.screenshot} alt="chart"/>:<div className="trade-card-img-placeholder">◢</div>}
                       <div className="trade-card-body">
                         <div className="trade-card-ticker">{t.ticker}</div>
                         <div className={`trade-card-pnl ${t.pnl>=0?"pos":"neg"}`}>{t.pnl>=0?"+":""}${t.pnl}</div>
@@ -1130,13 +1221,13 @@ function Journal({ user }) {
                 <div className="equity-chart">
                   <svg width="100%" viewBox={`0 0 ${W} ${H+20}`}>
                     <defs>
-                      <linearGradient id="eq" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#4ade80" stopOpacity="0.3"/><stop offset="100%" stopColor="#4ade80" stopOpacity="0"/></linearGradient>
+                      <linearGradient id="eq" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#7ec9a0" stopOpacity="0.3"/><stop offset="100%" stopColor="#7ec9a0" stopOpacity="0"/></linearGradient>
                       <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
                     </defs>
                     {eqPts.length>1&&<>
                       <path d={fillD} fill="url(#eq)"/>
-                      <path d={pathD} stroke="#4ade80" strokeWidth="2.5" fill="none" filter="url(#glow)"/>
-                      {eqPts.map((p,i)=><circle key={i} cx={tx(p.x)} cy={ty(p.y)} r="3.5" fill="#4ade80" opacity="0.8"/>)}
+                      <path d={pathD} stroke="#7ec9a0" strokeWidth="2.5" fill="none" filter="url(#glow)"/>
+                      {eqPts.map((p,i)=><circle key={i} cx={tx(p.x)} cy={ty(p.y)} r="3.5" fill="#7ec9a0" opacity="0.8"/>)}
                     </>}
                     <text x="0" y={H+16} fontSize="9" fill="var(--muted)" fontFamily="var(--mono)">START</text>
                     <text x={W-24} y={H+16} fontSize="9" fill="var(--muted)" fontFamily="var(--mono)">NOW</text>
@@ -1149,7 +1240,7 @@ function Journal({ user }) {
                   {emotionBd.length===0?<div style={{color:"var(--muted)",fontSize:13}}>No data yet.</div>:emotionBd.map(e=>(
                     <div key={e.label} className="bar-row">
                       <div style={{width:82,fontSize:12,color:"var(--text2)"}}>{e.label}</div>
-                      <div className="bar-track"><div className="bar-fill" style={{width:`${Math.min(100,Math.abs(e.pnl)/Math.max(...emotionBd.map(x=>Math.abs(x.pnl)))*100)}%`,background:e.pnl>=0?"linear-gradient(90deg,var(--accent),var(--accent2))":"linear-gradient(90deg,var(--red),#fb923c)"}}/></div>
+                      <div className="bar-track"><div className="bar-fill" style={{width:`${Math.min(100,Math.abs(e.pnl)/Math.max(...emotionBd.map(x=>Math.abs(x.pnl)))*100)}%`,background:e.pnl>=0?"linear-gradient(90deg,var(--accent),var(--accent2))":"linear-gradient(90deg,var(--red),var(--red))"}}/></div>
                       <div style={{width:64,textAlign:"right",fontFamily:"var(--mono)",fontSize:11,color:e.pnl>=0?"var(--accent)":"var(--red)",fontWeight:700}}>{e.pnl>=0?"+":""}${e.pnl}</div>
                     </div>
                   ))}
@@ -1161,7 +1252,7 @@ function Journal({ user }) {
                   {setupBd.length===0?<div style={{color:"var(--muted)",fontSize:13}}>No data yet.</div>:setupBd.map(s=>(
                     <div key={s.label} className="bar-row">
                       <div style={{width:92,fontSize:12,color:"var(--text2)"}}>{s.label}</div>
-                      <div className="bar-track"><div className="bar-fill" style={{width:`${Math.min(100,Math.abs(s.pnl)/Math.max(...setupBd.map(x=>Math.abs(x.pnl)))*100)}%`,background:s.pnl>=0?"linear-gradient(90deg,var(--accent2),var(--accent3))":"linear-gradient(90deg,var(--red),#fb923c)"}}/></div>
+                      <div className="bar-track"><div className="bar-fill" style={{width:`${Math.min(100,Math.abs(s.pnl)/Math.max(...setupBd.map(x=>Math.abs(x.pnl)))*100)}%`,background:s.pnl>=0?"linear-gradient(90deg,var(--accent2),var(--accent3))":"linear-gradient(90deg,var(--red),var(--red))"}}/></div>
                       <div style={{width:58,textAlign:"right",fontFamily:"var(--mono)",fontSize:11,color:s.pnl>=0?"var(--accent2)":"var(--red)",fontWeight:700}}>{s.pnl>=0?"+":""}${s.pnl}</div>
                     </div>
                   ))}
@@ -1188,7 +1279,7 @@ function Journal({ user }) {
             </div>
             <div className="panel" style={{display:"flex",flexDirection:"column",height:"min(580px,72vh)"}}>
               <div className="panel-header">
-                <div className="panel-title">💬 Chat with AI Coach</div>
+                <div className="panel-title">Chat with AI Coach</div>
                 <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                   {["My win rate","Best setup?","My psychology"].map(q=>(
                     <button key={q} className="btn btn-ghost btn-sm" onClick={()=>setInput(q)}>{q}</button>
@@ -1198,11 +1289,11 @@ function Journal({ user }) {
               <div className="ai-chat" ref={chatRef}>
                 {messages.map((m,i)=>(
                   <div key={i} className="ai-msg" style={{flexDirection:m.role==="user"?"row-reverse":"row"}}>
-                    {m.role==="ai"?<div className="ai-avatar">🤖</div>:<div className="user-avatar">{initials}</div>}
+                    {m.role==="ai"?<div className="ai-avatar">✦</div>:<div className="user-avatar">{initials}</div>}
                     <div className={`msg-bubble ${m.role==="user"?"user":""}`}>{m.text}</div>
                   </div>
                 ))}
-                {aiLoading&&<div className="ai-msg"><div className="ai-avatar">🤖</div><div className="msg-bubble"><div className="typing"><div className="dot"/><div className="dot"/><div className="dot"/></div></div></div>}
+                {aiLoading&&<div className="ai-msg"><div className="ai-avatar">✦</div><div className="msg-bubble"><div className="typing"><div className="dot"/><div className="dot"/><div className="dot"/></div></div></div>}
               </div>
               <div className="ai-input-row">
                 <input className="ai-input" placeholder="Ask about your trades, patterns, psychology..." value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendMessage()}/>
@@ -1226,6 +1317,7 @@ function Journal({ user }) {
               </div>
             </div>
           </>}
+          {page==="feedback"&&<FeedbackPage user={user} isPro={isPro} displayName={displayName} onDone={showToast}/>}
         </div>
 
         {/* MOBILE BOTTOM NAV */}
@@ -1238,14 +1330,14 @@ function Journal({ user }) {
               </div>
             ))}
             <div className="bottom-nav-item" onClick={()=>signOut(auth)}>
-              <span className="bottom-nav-icon">👤</span>
+              <span className="bottom-nav-icon">⎋</span>
               <span className="bottom-nav-label">Sign Out</span>
             </div>
           </div>
         </div>
 
         {/* MOBILE FAB */}
-        <button className="fab" onClick={openAdd} style={{display:"flex"}}>+</button>
+        <button className="fab" onClick={openAdd} aria-label="Log trade">+</button>
 
         {/* PAYWALL */}
         {showPaywall&&<Paywall user={user} onClose={()=>setShowPaywall(false)}/>}
@@ -1265,7 +1357,7 @@ function Journal({ user }) {
                 </div>
                 <button className="btn btn-ghost btn-sm" onClick={()=>setDetailTrade(null)}>✕</button>
               </div>
-              {detailTrade.screenshot?<img className="detail-chart" src={detailTrade.screenshot} alt="chart" style={{marginTop:16}} onClick={()=>setLightbox(detailTrade.screenshot)}/>:<div className="detail-chart-placeholder">📈</div>}
+              {detailTrade.screenshot?<img className="detail-chart" src={detailTrade.screenshot} alt="chart" style={{marginTop:16}} onClick={()=>setLightbox(detailTrade.screenshot)}/>:<div className="detail-chart-placeholder">◢</div>}
               <div className="detail-grid">
                 {[["Entry","$"+detailTrade.entry],["Exit","$"+detailTrade.exit],["Shares",detailTrade.shares],["Setup",detailTrade.setup],["Emotion",detailTrade.emotion],["P&L",(detailTrade.pnl>=0?"+":"")+"$"+detailTrade.pnl]].map(([k,v])=>(
                   <div key={k} className="detail-cell">
@@ -1276,9 +1368,9 @@ function Journal({ user }) {
               </div>
               {detailTrade.notes&&<div className="detail-notes"><div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--muted)",textTransform:"uppercase",letterSpacing:"2px",marginBottom:9}}>Notes</div>{detailTrade.notes}</div>}
               <div className="detail-actions">
-                <button className="btn btn-primary" style={{flex:1}} onClick={()=>analyzeTradeAI(detailTrade)}>🤖 AI Analysis</button>
-                <button className="btn btn-blue" onClick={e=>openEdit(detailTrade,e)}>✏️ Edit</button>
-                <button className="btn btn-danger" onClick={()=>setConfirmDelete(detailTrade)}>🗑 Delete</button>
+                <button className="btn btn-primary" style={{flex:1}} onClick={()=>analyzeTradeAI(detailTrade)}>AI Analysis</button>
+                <button className="btn btn-blue" onClick={e=>openEdit(detailTrade,e)}>Edit</button>
+                <button className="btn btn-danger" onClick={()=>setConfirmDelete(detailTrade)}>Delete</button>
               </div>
             </div>
           </div>
@@ -1288,7 +1380,7 @@ function Journal({ user }) {
         {showModal&&(
           <div className="overlay" onClick={()=>setShowModal(false)}>
             <div className="modal" onClick={e=>e.stopPropagation()}>
-              <div className="modal-title">{editingTrade?"✏️ Edit Trade":"📋 Log New Trade"}</div>
+              <div className="modal-title">{editingTrade?"Edit Trade":"Log New Trade"}</div>
               <div className="form-grid">
                 <div className="form-group"><label>Date</label><input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))}/></div>
                 <div className="form-group"><label>Ticker</label><input placeholder="AAPL" value={form.ticker} onChange={e=>setForm(f=>({...f,ticker:e.target.value.toUpperCase()}))}/></div>
@@ -1303,7 +1395,7 @@ function Journal({ user }) {
                   <label>Chart Screenshot (optional)</label>
                   {form.screenshot
                     ?<div className="screenshot-preview"><img src={form.screenshot} alt="preview"/><button className="screenshot-remove" onClick={()=>setForm(f=>({...f,screenshot:null}))}>✕</button></div>
-                    :<div className="upload-zone"><input type="file" accept="image/*" onChange={e=>handleScreenshot(e.target.files[0],src=>setForm(f=>({...f,screenshot:src})))}/><div className="upload-zone-icon">📷</div><div className="upload-zone-text">Click to upload chart screenshot</div></div>
+                    :<div className="upload-zone"><input type="file" accept="image/*" onChange={e=>handleScreenshot(e.target.files[0],src=>setForm(f=>({...f,screenshot:src})))}/><div className="upload-zone-icon">↥</div><div className="upload-zone-text">Click to upload chart screenshot</div></div>
                   }
                 </div>
               </div>
@@ -1320,7 +1412,7 @@ function Journal({ user }) {
         {confirmDelete&&(
           <div className="overlay" onClick={()=>setConfirmDelete(null)}>
             <div className="confirm-box" onClick={e=>e.stopPropagation()}>
-              <div style={{fontSize:36,marginBottom:12}}>🗑</div>
+              
               <div className="confirm-title">Delete this trade?</div>
               <div className="confirm-sub">{confirmDelete.ticker} · {confirmDelete.date}<br/><span style={{color:confirmDelete.pnl>=0?"var(--accent)":"var(--red)",fontWeight:700}}>{confirmDelete.pnl>=0?"+":""}${confirmDelete.pnl}</span><br/><br/>This action cannot be undone.</div>
               <div className="confirm-actions">
