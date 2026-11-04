@@ -24,9 +24,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
-const OPENROUTER_KEY = import.meta.env.VITE_OPENROUTER_KEY;
 const FREE_LIMIT = 10;
-const AI_MODEL = "anthropic/claude-sonnet-5.5"; // change this line to switch models
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap');
@@ -769,15 +767,12 @@ const WELCOME_MSG = { role:"ai", text:"Hello. I'm your AI trading coach powered 
 const EMPTY_FORM  = { date:new Date().toISOString().slice(0,10), ticker:"", direction:"long", entry:"", exit:"", shares:"", emotion:"Confident", setup:"Breakout", notes:"", screenshot:null };
 
 const callAI = async (messages) => {
-  if (!OPENROUTER_KEY) throw new Error("VITE_OPENROUTER_KEY is missing. Add it in Vercel (or your .env file) and redeploy.");
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method:"POST",
-    headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${OPENROUTER_KEY.trim()}`, "HTTP-Referer":window.location.origin },
-    body: JSON.stringify({ model:AI_MODEL, max_tokens:2000, messages }),
-  });
-  const data = await res.json().catch(()=>({}));
-  if (!res.ok || data.error) throw new Error(data.error?.message || ("OpenRouter error " + res.status));
-  return data.choices?.[0]?.message?.content || "The model returned an empty answer. Please try again.";
+  const idToken = await auth.currentUser.getIdToken();
+  const res = await fetch("/api/chat", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ idToken, messages }) });
+  const text = await res.text();
+  let d; try { d = JSON.parse(text); } catch { throw new Error("Server error: " + text.slice(0,80)); }
+  if (!res.ok) throw new Error(d.error || "AI request failed");
+  return d.content || "The model returned an empty answer. Please try again.";
 };
 
 // ── AUTH ──────────────────────────────────────────────────────
@@ -970,13 +965,7 @@ function FeedbackPage({ user, isPro, displayName, onDone }) {
 export default function Root() {
   const [user, setUser] = useState(undefined);
   useEffect(()=>{ const u = onAuthStateChanged(auth, u=>setUser(u)); return u; },[]);
-  useEffect(()=>{
-    const p = new URLSearchParams(window.location.search);
-    if (p.get("success")==="true") {
-      const uid = p.get("uid");
-      if (uid) { setDoc(doc(db,"users",uid),{isPro:true},{merge:true}); window.history.replaceState({},"","/"); }
-    }
-  },[]);
+  useEffect(()=>{ if(new URLSearchParams(window.location.search).get("success")==="true") window.history.replaceState({},"","/"); },[]);
   if (user===undefined) return (<><style>{STYLES}</style><div className="loading-screen"><div className="spinner"/><span>LOADING TRADEAI</span></div></>);
   if (!user) return <AuthPage/>;
   return <Journal user={user}/>;
