@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import SettingsPage from "./Settings";
+import Landing from "./Landing";
+import LegalPage, { LEGAL_PATHS } from "./Legal";
 import { loadStripe } from "@stripe/stripe-js";
 import { initializeApp } from "firebase/app";
 import {
@@ -759,6 +761,31 @@ const STYLES = `
   .set-wrap{max-width:720px}.set-section{margin-bottom:20px}.set-body{padding:22px;display:grid;gap:14px}.set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
   input:disabled{opacity:.55;cursor:not-allowed}
 
+  .pub{min-height:100vh;background:var(--bg)}.pub a{color:inherit;text-decoration:none}
+  .pub-nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border)}
+  .pub-logo{font-family:var(--display);font-size:26px}.pub-links{display:flex;gap:22px;align-items:center;font-size:14px;color:var(--text2)}.pub-links a:hover{color:var(--text)}
+  .hero{max-width:820px;margin:0 auto;padding:96px 24px 72px;text-align:center}
+  .hero-tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--muted);margin-bottom:22px}
+  .hero h1{font-family:var(--display);font-weight:400;font-size:68px;line-height:1.02;letter-spacing:-.02em}.hero h1 em{color:var(--text2)}
+  .hero p{color:var(--text2);font-size:18px;line-height:1.6;max-width:600px;margin:26px auto 34px}
+  .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}.hero-cta .btn{padding:13px 24px;font-size:14px}
+  .pub-sec{max-width:1040px;margin:0 auto;padding:56px 24px}.pub-sec.narrow{max-width:700px}
+  .pub-h2{font-family:var(--display);font-weight:400;font-size:38px;text-align:center;margin-bottom:34px}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .feat,.price-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+  .feat h3,.faq h3{font-size:15px;font-weight:600;margin-bottom:8px}.feat p,.faq p{color:var(--text2);font-size:14px;line-height:1.65}
+  .price-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:700px;margin:0 auto}
+  .price-card.pro{border-color:var(--text2)}.price-name{font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+  .price-amt{font-family:var(--display);font-size:52px;margin:10px 0 16px}.price-amt span{font-size:16px;color:var(--text2);font-family:var(--font)}
+  .price-card ul{list-style:none;margin-bottom:22px;display:grid;gap:10px;color:var(--text2);font-size:14px}.price-card .btn{display:block;text-align:center}
+  .faq{border-top:1px solid var(--border);padding:20px 0}
+  .pub-foot{border-top:1px solid var(--border);padding:32px;text-align:center;color:var(--muted);font-size:12px;line-height:1.8}
+  .pub-foot-links{display:flex;gap:22px;justify-content:center;margin-bottom:10px;font-size:13px}.pub-foot a:hover{color:var(--text)}
+  .legal{max-width:720px;margin:0 auto;padding:56px 24px}.legal h1{font-family:var(--display);font-weight:400;font-size:44px}
+  .legal-date{color:var(--muted);font-family:var(--mono);font-size:12px;margin:8px 0 32px}.legal h2{font-size:16px;margin:26px 0 8px}.legal p{color:var(--text2);line-height:1.75;font-size:15px}
+  .auth-legal{position:fixed;bottom:14px;left:0;right:0;text-align:center;font-size:12px;color:var(--muted);z-index:5}.auth-legal a{color:var(--text2);text-decoration:underline}
+  @media (max-width:768px){.hero h1{font-size:42px}.feat-grid,.price-grid{grid-template-columns:1fr}.pub-nav{padding:14px 18px}.pub-links{gap:14px}.hero{padding:56px 20px 40px}}
+
 `;
 
 const EMOTIONS = ["Confident","Calm","Disciplined","FOMO","Anxious","Greedy","Revenge","Patient"];
@@ -776,8 +803,8 @@ const callAI = async (messages) => {
 };
 
 // ── AUTH ──────────────────────────────────────────────────────
-function AuthPage() {
-  const [tab, setTab] = useState("login");
+function AuthPage({ initialTab = "login" }) {
+  const [tab, setTab] = useState(initialTab);
   const [view, setView] = useState("auth");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -966,8 +993,13 @@ export default function Root() {
   const [user, setUser] = useState(undefined);
   useEffect(()=>{ const u = onAuthStateChanged(auth, u=>setUser(u)); return u; },[]);
   useEffect(()=>{ if(new URLSearchParams(window.location.search).get("success")==="true") window.history.replaceState({},"","/"); },[]);
+  const path = window.location.pathname.replace(/\/$/,"") || "/";
+  if (LEGAL_PATHS.includes(path)) return (<><style>{STYLES}</style><LegalPage page={path.slice(1)}/></>);
   if (user===undefined) return (<><style>{STYLES}</style><div className="loading-screen"><div className="spinner"/><span>LOADING TRADEAI</span></div></>);
-  if (!user) return <AuthPage/>;
+  if (!user) {
+    if (path==="/login"||path==="/signup") return (<><AuthPage initialTab={path==="/signup"?"signup":"login"}/><div className="auth-legal">By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>. <a href="/">Back to home</a></div></>);
+    return (<><style>{STYLES}</style><Landing/></>);
+  }
   return <Journal user={user}/>;
 }
 
