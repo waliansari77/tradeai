@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import SettingsPage from "./Settings";
+import { Toolbar, CalendarView, applyFilters, EMPTY_FILTERS } from "./TradeTools";
 import Landing from "./Landing";
 import LegalPage, { LEGAL_PATHS } from "./Legal";
 import { loadStripe } from "@stripe/stripe-js";
@@ -786,10 +787,19 @@ const STYLES = `
   .auth-legal{position:fixed;bottom:14px;left:0;right:0;text-align:center;font-size:12px;color:var(--muted);z-index:5}.auth-legal a{color:var(--text2);text-decoration:underline}
   @media (max-width:768px){.hero h1{font-size:42px}.feat-grid,.price-grid{grid-template-columns:1fr}.pub-nav{padding:14px 18px}.pub-links{gap:14px}.hero{padding:56px 20px 40px}}
 
+  .tb{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}.tb input,.tb select{width:auto;padding:8px 12px;font-size:13px}.tb .grow{flex:1;min-width:170px}
+  .seg{display:inline-flex;border:1px solid var(--border2);border-radius:8px;overflow:hidden}.seg button{background:transparent;border:0;color:var(--text2);padding:7px 14px;font-size:13px;font-family:var(--font);cursor:pointer}.seg button.on{background:var(--text);color:var(--bg)}
+  .cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-dow{font-family:var(--mono);font-size:10px;color:var(--muted);text-align:center;padding:6px 0}
+  .cal-day{min-height:82px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px}.cal-day.has{cursor:pointer}.cal-day.has:hover{border-color:var(--text2)}
+  .cal-day.pos{background:rgba(126,201,160,.07)}.cal-day.neg{background:rgba(217,130,130,.07)}
+  .cal-n{color:var(--muted);font-family:var(--mono);font-size:11px}.cal-pnl{font-family:var(--mono);font-weight:700;font-size:13px;margin-top:6px}.cal-cnt{color:var(--muted);font-size:10px;margin-top:2px}
+  @media (max-width:768px){.cal-day{min-height:58px;padding:5px}.cal-pnl{font-size:10px}.cal-cnt{display:none}.tb select,.tb input[type=date]{flex:1;min-width:120px}}
+
 `;
 
-const EMOTIONS = ["Confident","Calm","Disciplined","FOMO","Anxious","Greedy","Revenge","Patient"];
-const SETUPS   = ["Trend Follow","Breakout","Breakdown","Momentum","Reversal","Catalyst","Scalp","Swing"];
+const EMOTIONS = ["Confident","Calm","Disciplined","FOMO","Anxious","Greedy","Revenge","Patient","Neutral"];
+const SETUPS   = ["Trend Follow","Breakout","Breakdown","Momentum","Reversal","Catalyst","Scalp","Swing","Other"];
 const WELCOME_MSG = { role:"ai", text:"Hello. I'm your AI trading coach powered by Claude. Ask me anything about your trades, patterns, or psychology!" };
 const EMPTY_FORM  = { date:new Date().toISOString().slice(0,10), ticker:"", direction:"long", entry:"", exit:"", shares:"", emotion:"Confident", setup:"Breakout", notes:"", screenshot:null };
 
@@ -1022,6 +1032,9 @@ function Journal({ user }) {
   const [lightbox, setLightbox]       = useState(null);
   const [form, setForm]               = useState(EMPTY_FORM);
   const chatRef = useRef(null);
+  const [view,setView]=useState("cards");
+  const [filters,setFilters]=useState(EMPTY_FILTERS);
+  const shown = applyFilters(trades,filters);
 
   const isPro = userDoc?.isPro === true;
 
@@ -1200,6 +1213,9 @@ function Journal({ user }) {
               <div className="stat-card purple"><div className="stat-label">Avg Win</div><div className="stat-value purple">+${avgWin}</div><div className="stat-change">per winning trade</div></div>
               <div className="stat-card red"><div className="stat-label">Risk : Reward</div><div className="stat-value yellow">{rr}:1</div><div className="stat-change">avg loss ${Math.abs(avgLoss)}</div></div>
             </div>
+            <Toolbar filters={filters} setFilters={setFilters} view={view} setView={setView} setups={SETUPS} shown={shown.length} total={trades.length} db={db} user={user} trades={trades} isPro={isPro} limit={FREE_LIMIT} onPaywall={()=>setShowPaywall(true)} onDone={showToast}/>
+            {view==="calendar"&&<CalendarView trades={shown} onSelect={d=>{setFilters(f=>({...f,from:d,to:d}));setView("cards");}}/>}
+            {view==="cards"&&trades.length>0&&shown.length===0&&<div className="empty"><div className="empty-title">No trades match your filters</div></div>}
             {tradesLoading
               ?<div className="loading-screen" style={{minHeight:200}}><div className="spinner"/></div>
               :trades.length===0
@@ -1209,7 +1225,7 @@ function Journal({ user }) {
                   <div className="empty-sub">{FREE_LIMIT} free trades included — log your first one!</div>
                 </div>
                 :<div className="trade-cards-grid">
-                  {trades.map((t,i)=>(
+                  {(view==="calendar"?[]:shown).map((t,i)=>(
                     <div key={t.id} className="trade-card" style={{animationDelay:`${i*0.05}s`}} onClick={()=>setDetailTrade(t)}>
                       <div className="trade-card-actions" onClick={e=>e.stopPropagation()}>
                         <button className="card-action-btn edit" onClick={e=>openEdit(t,e)}>✎</button>
