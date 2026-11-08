@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import SettingsPage from "./Settings";
+import AdminPage, { ADMIN_UID } from "./Admin";
 import { Toolbar, CalendarView, applyFilters, EMPTY_FILTERS } from "./TradeTools";
 import Landing from "./Landing";
 import LegalPage, { LEGAL_PATHS } from "./Legal";
@@ -796,6 +797,10 @@ const STYLES = `
   .cal-n{color:var(--muted);font-family:var(--mono);font-size:11px}.cal-pnl{font-family:var(--mono);font-weight:700;font-size:13px;margin-top:6px}.cal-cnt{color:var(--muted);font-size:10px;margin-top:2px}
   @media (max-width:768px){.cal-day{min-height:58px;padding:5px}.cal-pnl{font-size:10px}.cal-cnt{display:none}.tb select,.tb input[type=date]{flex:1;min-width:120px}}
 
+  .fb-item{padding:18px 20px;border-bottom:1px solid var(--border)}.fb-item:last-child{border-bottom:0}
+  .fb-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:11px;color:var(--muted)}
+  a.btn{display:inline-block;text-decoration:none}
+
 `;
 
 const EMOTIONS = ["Confident","Calm","Disciplined","FOMO","Anxious","Greedy","Revenge","Patient","Neutral"];
@@ -1140,6 +1145,7 @@ function Journal({ user }) {
   const displayName=user.displayName||user.email?.split("@")[0]||"Trader";
   const initials=(displayName[0]||"T").toUpperCase();
   const NAV=[{id:"journal",icon:"▤",label:"Journal"},{id:"performance",icon:"◐",label:"Stats"},{id:"ai",icon:"✦",label:"AI"},{id:"feedback",icon:"✎",label:"Feedback"},{id:"settings",icon:"⚙",label:"Settings"}];
+  const navItems = user.uid===ADMIN_UID ? [...NAV,{id:"admin",icon:"◎",label:"Admin"}] : NAV;
 
   return (
     <>
@@ -1162,7 +1168,7 @@ function Journal({ user }) {
             <div className="logo-sub">AI JOURNAL · v1.0</div>
           </div>
           <div className="nav">
-            {NAV.map(item=>(
+            {navItems.map(item=>(
               <div key={item.id} className={`nav-item ${page===item.id?"active":""}`} onClick={()=>setPage(item.id)}>
                 <span className="nav-icon">{item.icon}</span>{item.label}
               </div>
@@ -1361,6 +1367,7 @@ function Journal({ user }) {
               </div>
             </div>
           </>}
+          {page==="admin"&&user.uid===ADMIN_UID&&<AdminPage db={db} onDone={showToast}/>}
           {page==="settings"&&<SettingsPage user={user} auth={auth} db={db} isPro={isPro} trades={trades} onDone={showToast}/>}
           {page==="feedback"&&<FeedbackPage user={user} isPro={isPro} displayName={displayName} onDone={showToast}/>}
         </div>
@@ -1368,7 +1375,7 @@ function Journal({ user }) {
         {/* MOBILE BOTTOM NAV */}
         <div className="bottom-nav">
           <div className="bottom-nav-inner">
-            {NAV.map(item=>(
+            {navItems.map(item=>(
               <div key={item.id} className={`bottom-nav-item ${page===item.id?"active":""}`} onClick={()=>setPage(item.id)}>
                 <span className="bottom-nav-icon">{item.icon}</span>
                 <span className="bottom-nav-label">{item.label}</span>
