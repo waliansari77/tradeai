@@ -6,7 +6,7 @@ export const EMPTY_FILTERS = { q: "", dir: "all", res: "all", setup: "all", from
 export function applyFilters(trades, f) {
   const q = f.q.trim().toLowerCase();
   return trades.filter(t =>
-    (!q || (t.ticker || "").toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q)) &&
+    (!q || (t.ticker || "").toLowerCase().includes(q) || (t.notes || "").toLowerCase().includes(q) || (t.tags || []).some(x => x.includes(q))) &&
     (f.dir === "all" || t.direction === f.dir) &&
     (f.res === "all" || (f.res === "win" ? t.pnl > 0 : t.pnl < 0)) &&
     (f.setup === "all" || t.setup === f.setup) &&
@@ -96,7 +96,7 @@ export function Toolbar({ filters: f, setFilters, view, setView, setups, shown, 
   return (
     <div style={{ marginBottom: 18 }}>
       <div className="tb">
-        <input className="grow" placeholder="Search ticker or notes" value={f.q} onChange={e => set("q", e.target.value)} />
+        <input className="grow" placeholder="Search ticker, notes or tag" value={f.q} onChange={e => set("q", e.target.value)} />
         <select value={f.dir} onChange={e => set("dir", e.target.value)}><option value="all">Long + Short</option><option value="long">Long</option><option value="short">Short</option></select>
         <select value={f.res} onChange={e => set("res", e.target.value)}><option value="all">Wins + Losses</option><option value="win">Wins</option><option value="loss">Losses</option></select>
         <select value={f.setup} onChange={e => set("setup", e.target.value)}><option value="all">All setups</option>{setups.map(s => <option key={s}>{s}</option>)}</select>

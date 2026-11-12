@@ -806,7 +806,10 @@ const STYLES = `
 const EMOTIONS = ["Confident","Calm","Disciplined","FOMO","Anxious","Greedy","Revenge","Patient","Neutral"];
 const SETUPS   = ["Trend Follow","Breakout","Breakdown","Momentum","Reversal","Catalyst","Scalp","Swing","Other"];
 const WELCOME_MSG = { role:"ai", text:"Hello. I'm your AI trading coach powered by Claude. Ask me anything about your trades, patterns, or psychology!" };
-const EMPTY_FORM  = { date:new Date().toISOString().slice(0,10), ticker:"", direction:"long", entry:"", exit:"", shares:"", emotion:"Confident", setup:"Breakout", notes:"", screenshot:null };
+const EMPTY_FORM  = { date:new Date().toISOString().slice(0,10), ticker:"", direction:"long", entry:"", exit:"", shares:"", emotion:"Confident", setup:"Breakout", notes:"", screenshot:null, stop:"", target:"", fees:"", tags:"" };
+
+// R-multiple = net P&L divided by the money risked (entry to stop distance x shares)
+const rMult = t => { const risk = Math.abs((+t.entry)-(+t.stop))*(+t.shares); return (t.stop!==null&&t.stop!==undefined&&t.stop!==""&&risk>0) ? t.pnl/risk : null; };
 
 const callAI = async (messages) => {
   const idToken = await auth.currentUser.getIdToken();
@@ -1057,7 +1060,7 @@ function Journal({ user }) {
     if (!isPro&&trades.length>=FREE_LIMIT){ setShowPaywall(true); return; }
     setEditingTrade(null); setForm(EMPTY_FORM); setShowModal(true);
   };
-  const openEdit = (trade,e)=>{ e?.stopPropagation(); setEditingTrade(trade); setForm({...trade}); setShowModal(true); };
+  const openEdit = (trade,e)=>{ e?.stopPropagation(); setEditingTrade(trade); setForm({...EMPTY_FORM,...trade,tags:Array.isArray(trade.tags)?trade.tags.join(", "):"",stop:trade.stop??"",target:trade.target??"",fees:trade.fees??""}); setShowModal(true); };
 
   const handleScreenshot = (file,cb)=>{
     if (!file) return;
@@ -1068,10 +1071,11 @@ function Journal({ user }) {
 
   const saveTrade = async ()=>{
     if (!form.ticker||!form.entry||!form.exit||!form.shares) return;
-    const pnl = Math.round((parseFloat(form.exit)-parseFloat(form.entry))*parseInt(form.shares)*(form.direction==="short"?-1:1));
+    const fees = parseFloat(form.fees)||0;
+    const pnl = Math.round((parseFloat(form.exit)-parseFloat(form.entry))*parseInt(form.shares)*(form.direction==="short"?-1:1)-fees);
     setSaving(true);
     try {
-      const td = { ...form, entry:+form.entry, exit:+form.exit, shares:+form.shares, pnl, uid:user.uid };
+      const td = { ...form, entry:+form.entry, exit:+form.exit, shares:+form.shares, pnl, fees, stop:form.stop===""?null:+form.stop, target:form.target===""?null:+form.target, tags:String(form.tags||"").split(",").map(x=>x.trim().toLowerCase().replace(/^#/,"")).filter(Boolean).slice(0,8), uid:user.uid };
       if (editingTrade) {
         await updateDoc(doc(db,"users",user.uid,"trades",editingTrade.id),{...td,updatedAt:Date.now()});
         showToast("✓ Trade updated");
@@ -1099,7 +1103,7 @@ function Journal({ user }) {
     try {
       const reply = await callAI([
         {role:"system",content:"You are an expert stock trading coach. Be concise (3-4 sentences), direct, and actionable."},
-        {role:"user",content:`Analyze:\n${trade.ticker} | ${trade.direction.toUpperCase()} | Entry:$${trade.entry} | Exit:$${trade.exit} | Shares:${trade.shares} | P&L:$${trade.pnl} | Setup:${trade.setup} | Emotion:${trade.emotion} | Notes:"${trade.notes}"`}
+        {role:"user",content:`Analyze:\n${trade.ticker} | ${trade.direction.toUpperCase()} | Entry:$${trade.entry} | Exit:$${trade.exit} | Shares:${trade.shares} | P&L:$${trade.pnl} | Setup:${trade.setup} | Emotion:${trade.emotion} | Notes:"${trade.notes}"${trade.stop!=null?` | Stop:$${trade.stop}`:""}${trade.target!=null?` | Target:$${trade.target}`:""}${trade.fees?` | Fees:$${trade.fees}`:""}${rMult(trade)!==null?` | R:${rMult(trade).toFixed(2)}`:""}${trade.tags?.length?` | Tags:${trade.tags.join(",")}`:""}`}
       ]);
       setMessages(prev=>[...prev,{role:"ai",text:reply}]);
     } catch(e){ setMessages(prev=>[...prev,{role:"ai",text:"AI error: "+e.message}]); }
@@ -1130,6 +1134,7 @@ function Journal({ user }) {
   const rr = avgLoss?Math.abs((avgWin/avgLoss).toFixed(2)):0;
   const gp=wins.reduce((a,t)=>a+t.pnl,0), gl=Math.abs(losses.reduce((a,t)=>a+t.pnl,0));
   const pf = gl?(gp/gl).toFixed(2):(gp?"∞":"0");
+  const rs=trades.map(rMult).filter(x=>x!==null); const avgR=rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:null; const expect=trades.length?totalPnl/trades.length:0;
   const usagePct = Math.min(100,(trades.length/FREE_LIMIT)*100);
 
   const eqPts=(()=>{ let c=0; return [...trades].reverse().map((t,i)=>({x:i,y:(c+=t.pnl)})); })();
@@ -1141,7 +1146,7 @@ function Journal({ user }) {
   const fillD=pathD+` L${tx(eqPts.length-1)},${H} L0,${H} Z`;
   const emotionBd=EMOTIONS.map(e=>({label:e,pnl:trades.filter(t=>t.emotion===e).reduce((s,t)=>s+t.pnl,0)})).filter(e=>trades.some(t=>t.emotion===e)).sort((a,b)=>b.pnl-a.pnl);
   const setupBd=SETUPS.map(s=>({label:s,pnl:trades.filter(t=>t.setup===s).reduce((s,t)=>s+t.pnl,0)})).filter(s=>trades.some(t=>t.setup===s)).sort((a,b)=>b.pnl-a.pnl);
-  const estPnl=form.entry&&form.exit&&form.shares?Math.round((parseFloat(form.exit)-parseFloat(form.entry))*parseInt(form.shares)*(form.direction==="short"?-1:1)):null;
+  const estPnl=form.entry&&form.exit&&form.shares?Math.round((parseFloat(form.exit)-parseFloat(form.entry))*parseInt(form.shares)*(form.direction==="short"?-1:1)-(parseFloat(form.fees)||0)):null;
   const displayName=user.displayName||user.email?.split("@")[0]||"Trader";
   const initials=(displayName[0]||"T").toUpperCase();
   const NAV=[{id:"journal",icon:"▤",label:"Journal"},{id:"performance",icon:"◐",label:"Stats"},{id:"ai",icon:"✦",label:"AI"},{id:"feedback",icon:"✎",label:"Feedback"},{id:"settings",icon:"⚙",label:"Settings"}];
@@ -1246,6 +1251,7 @@ function Journal({ user }) {
                           <span className="meta-chip">{t.date?.slice(5)}</span>
                           <span className="meta-chip">{t.setup}</span>
                           <span className="meta-chip">{t.emotion}</span>
+                          {rMult(t)!==null&&<span className="meta-chip">{rMult(t).toFixed(1)}R</span>}
                         </div>
                       </div>
                     </div>
@@ -1311,7 +1317,7 @@ function Journal({ user }) {
               <div className="panel">
                 <div className="panel-header"><div className="panel-title">Trade Breakdown</div></div>
                 <div style={{padding:"16px 20px"}}>
-                  {[["Winning Trades",wins.length,"var(--accent)"],["Losing Trades",losses.length,"var(--red)"],["Avg Win",`+$${avgWin}`,"var(--accent)"],["Avg Loss",`-$${Math.abs(avgLoss)}`,"var(--red)"],["Best Trade",trades.length?`+$${Math.max(...trades.map(t=>t.pnl))}`:"—","var(--accent)"],["Worst Trade",trades.length?`$${Math.min(...trades.map(t=>t.pnl))}`:"—","var(--red)"]].map(([k,v,c])=>(
+                  {[["Winning Trades",wins.length,"var(--accent)"],["Losing Trades",losses.length,"var(--red)"],["Avg Win",`+$${avgWin}`,"var(--accent)"],["Avg Loss",`-$${Math.abs(avgLoss)}`,"var(--red)"],["Best Trade",trades.length?`+$${Math.max(...trades.map(t=>t.pnl))}`:"—","var(--accent)"],["Worst Trade",trades.length?`$${Math.min(...trades.map(t=>t.pnl))}`:"—","var(--red)"],["Avg R",avgR!==null?avgR.toFixed(2)+"R":"—","var(--text)"],["Expectancy",trades.length?(expect>=0?"+":"-")+"$"+Math.abs(expect).toFixed(0)+" / trade":"—","var(--text)"]].map(([k,v,c])=>(
                     <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"8px 0",borderBottom:"1px solid var(--border)",fontSize:13}}>
                       <span style={{color:"var(--text2)"}}>{k}</span>
                       <span style={{fontFamily:"var(--mono)",color:c,fontWeight:700}}>{v}</span>
@@ -1407,13 +1413,14 @@ function Journal({ user }) {
               </div>
               {detailTrade.screenshot?<img className="detail-chart" src={detailTrade.screenshot} alt="chart" style={{marginTop:16}} onClick={()=>setLightbox(detailTrade.screenshot)}/>:<div className="detail-chart-placeholder">◢</div>}
               <div className="detail-grid">
-                {[["Entry","$"+detailTrade.entry],["Exit","$"+detailTrade.exit],["Shares",detailTrade.shares],["Setup",detailTrade.setup],["Emotion",detailTrade.emotion],["P&L",(detailTrade.pnl>=0?"+":"")+"$"+detailTrade.pnl]].map(([k,v])=>(
+                {[["Entry","$"+detailTrade.entry],["Exit","$"+detailTrade.exit],["Shares",detailTrade.shares],["Setup",detailTrade.setup],["Emotion",detailTrade.emotion],["P&L",(detailTrade.pnl>=0?"+":"")+"$"+detailTrade.pnl],...(detailTrade.stop!=null?[["Stop","$"+detailTrade.stop]]:[]),...(detailTrade.target!=null?[["Target","$"+detailTrade.target]]:[]),...(detailTrade.fees?[["Fees","$"+detailTrade.fees]]:[]),...(rMult(detailTrade)!==null?[["R-multiple",rMult(detailTrade).toFixed(2)+"R"]]:[])].map(([k,v])=>(
                   <div key={k} className="detail-cell">
                     <div className="detail-cell-label">{k}</div>
                     <div className="detail-cell-val" style={{color:k==="P&L"?(detailTrade.pnl>=0?"var(--accent)":"var(--red)"):"var(--text)"}}>{v}</div>
                   </div>
                 ))}
               </div>
+              {detailTrade.tags?.length>0&&<div style={{padding:"0 26px 14px",display:"flex",gap:6,flexWrap:"wrap"}}>{detailTrade.tags.map(x=><span key={x} className="meta-chip">#{x}</span>)}</div>}
               {detailTrade.notes&&<div className="detail-notes"><div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--muted)",textTransform:"uppercase",letterSpacing:"2px",marginBottom:9}}>Notes</div>{detailTrade.notes}</div>}
               <div className="detail-actions">
                 <button className="btn btn-primary" style={{flex:1}} onClick={()=>analyzeTradeAI(detailTrade)}>AI Analysis</button>
@@ -1438,6 +1445,10 @@ function Journal({ user }) {
                 <div className="form-group"><label>Exit Price</label><input type="number" placeholder="0.00" value={form.exit} onChange={e=>setForm(f=>({...f,exit:e.target.value}))}/></div>
                 <div className="form-group"><label>Shares</label><input type="number" placeholder="0" value={form.shares} onChange={e=>setForm(f=>({...f,shares:e.target.value}))}/></div>
                 <div className="form-group"><label>Emotion</label><select value={form.emotion} onChange={e=>setForm(f=>({...f,emotion:e.target.value}))}>{EMOTIONS.map(e=><option key={e}>{e}</option>)}</select></div>
+                <div className="form-group"><label>Stop loss (optional)</label><input type="number" placeholder="0.00" value={form.stop} onChange={e=>setForm(f=>({...f,stop:e.target.value}))}/></div>
+                <div className="form-group"><label>Target (optional)</label><input type="number" placeholder="0.00" value={form.target} onChange={e=>setForm(f=>({...f,target:e.target.value}))}/></div>
+                <div className="form-group"><label>Fees (total $)</label><input type="number" placeholder="0.00" value={form.fees} onChange={e=>setForm(f=>({...f,fees:e.target.value}))}/></div>
+                <div className="form-group"><label>Tags (comma separated)</label><input placeholder="earnings, gap-up" value={form.tags} onChange={e=>setForm(f=>({...f,tags:e.target.value}))}/></div>
                 <div className="form-group full"><label>Notes / Rationale</label><textarea placeholder="Why did you take this trade? What did you see?" value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))}/></div>
                 <div className="form-group full">
                   <label>Chart Screenshot (optional)</label>

@@ -52,7 +52,7 @@ export default function SettingsPage({ user, auth, db, isPro, trades, onDone }) 
   });
 
   const exportCsv = () => {
-    const cols = ["date", "ticker", "direction", "entry", "exit", "shares", "pnl", "setup", "emotion", "notes"];
+    const cols = ["date", "ticker", "direction", "entry", "exit", "shares", "pnl", "fees", "stop", "target", "tags", "setup", "emotion", "notes"];
     const esc = v => '"' + String(v ?? "").replace(/"/g, '""') + '"';
     const csv = [cols.join(","), ...trades.map(t => cols.map(c => esc(t[c])).join(","))].join("\n");
     const a = document.createElement("a");
